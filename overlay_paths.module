@@ -1,0 +1,75 @@
+<?php
+/**
+ * @file
+ *   The overlay paths module.
+ */
+
+/**
+ * Get an array of non-administrative overlay paths.
+ */
+function overlay_paths_get_overlay_paths() {
+  $paths = &drupal_static(__FUNCTION__);
+  if (!isset($paths)) {
+    $paths = module_invoke_all('overlay_paths');
+    drupal_alter('overlay_paths', $paths);
+    $paths = array_filter($paths);
+  }
+  return $paths;
+}
+
+/**
+ * Get a pattern of non-administrative overlay paths.
+ */
+function overlay_paths_get_overlay_patterns() {
+  $patterns = &drupal_static(__FUNCTION__);
+  if (!isset($patterns)) {
+    $paths = overlay_paths_get_overlay_paths();
+    $patterns = implode("\n", array_keys($paths));
+  }
+  return $patterns;
+}
+
+/**
+ * Implements hook_admin_paths().
+ *
+ * To make paths appear in the overlay, we need to declare them as an admin
+ * path. This will of course mean that Drupal tries to make them use the admin
+ * theme too, but we undo that in overlay_paths_custom_theme().
+ */
+function overlay_paths_admin_paths() {
+  return overlay_paths_get_overlay_paths();
+}
+
+/**
+ * We set the custom theme back to the main site theme on overlay paths.
+ */
+function overlay_paths_custom_theme() {
+  if (user_access('view the administration theme') && drupal_match_path(current_path(), overlay_paths_get_overlay_patterns())) {
+    return variable_get('theme_default');
+  }
+}
+
+/**
+* Implements hook_module_implements_alter().
+*
+* This is mearly here so we don't have to set our module's weight. We just make
+* sure our hook_custom_theme is called after system module's implementation.
+*/
+function overlay_paths_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'custom_theme') {
+    if (isset($implementations['overlay_paths'])) {
+      // We need to make sure system comes before hosting_task
+      // Rebuild the array.
+      $modules = $implementations;
+      $implementations = array();
+      foreach ($modules as $m => $group) {
+        if ($m == 'overlay_paths' && !isset($implementations['system'])) {
+          $implementations['system'] = $modules['system'];
+        }
+        if (!isset($implementations[$m])) {
+          $implementations[$m] = $group;
+        }
+      }
+    }
+  }
+}

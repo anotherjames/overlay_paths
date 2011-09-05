@@ -12,8 +12,10 @@
  * @return
  *   An associative array. For each item, the key is the path in question, in
  *   a format acceptable to drupal_match_path(). The value for each item should
- *   be TRUE (but this may change to some kind of data array in a future
- *   version).
+ *   be TRUE or an associative array with the following possible keys:
+ *   - 'width': The width of the overlay when viewing this path, this can be
+ *     specified in 'px', 'em' or '%' or no units, which will default to using
+ *     'px'.
  *
  * @see hook_menu()
  * @see drupal_match_path()
@@ -23,7 +25,9 @@
 function hook_overlay_paths() {
   $paths = array(
     'mymodule/*/add' => TRUE,
-    'mymodule/*/edit' => TRUE,
+    'mymodule/*/edit' => array(
+      'width' => 500,
+    ),
   );
   return $paths;
 }

@@ -74,3 +74,79 @@ function overlay_paths_module_implements_alter(&$implementations, $hook) {
     }
   }
 }
+
+/**
+ * Implements hook_overlay_child_initialize().
+ */
+function overlay_paths_overlay_child_initialize() {
+  // Scan the current path to try to find and custom styles
+  $paths = array_filter(overlay_paths_get_overlay_paths(), 'is_array');
+  foreach ($paths as $path => $options) {
+    if (drupal_match_path(current_path(), $path)) {
+      if (isset($options['width'])) {
+        if ($width = overlay_paths_match_width($options['width'])) {
+          $css = <<<EOT
+#overlay {
+  width: $width;
+  min-width: $width;
+}
+EOT;
+          drupal_add_css($css, array('type' => 'inline'));
+        }
+      }
+      
+      break;
+    }
+  }
+}
+
+/**
+ * Return a valid CSS width value from the given string.
+ */
+function overlay_paths_match_width($width) {
+  $matches = array();
+  if (preg_match('#^\d+(px|em|%)?$#', $width, $matches)) {
+    $width = $matches[0];
+    if (empty($matches[1])) {
+      $width .= 'px';
+    }
+    return $width;
+  }
+  return FALSE;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

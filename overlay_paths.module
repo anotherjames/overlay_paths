@@ -89,12 +89,13 @@ function overlay_paths_overlay_child_initialize() {
 #overlay {
   width: $width;
   min-width: $width;
+  margin: 0 auto;
 }
 EOT;
           drupal_add_css($css, array('type' => 'inline'));
         }
       }
-      
+
       break;
     }
   }
@@ -114,39 +115,3 @@ function overlay_paths_match_width($width) {
   }
   return FALSE;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

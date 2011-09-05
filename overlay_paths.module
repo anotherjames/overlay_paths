@@ -52,7 +52,7 @@ function overlay_paths_custom_theme() {
 /**
 * Implements hook_module_implements_alter().
 *
-* This is mearly here so we don't have to set our module's weight. We just make
+* This is merely here so we don't have to set our module's weight. We just make
 * sure our hook_custom_theme is called after system module's implementation.
 */
 function overlay_paths_module_implements_alter(&$implementations, $hook) {

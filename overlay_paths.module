@@ -12,7 +12,6 @@ function overlay_paths_get_overlay_paths() {
   if (!isset($paths)) {
     $paths = module_invoke_all('overlay_paths');
     drupal_alter('overlay_paths', $paths);
-    $paths = array_filter($paths);
   }
   return $paths;
 }
@@ -23,7 +22,7 @@ function overlay_paths_get_overlay_paths() {
 function overlay_paths_get_overlay_patterns() {
   $patterns = &drupal_static(__FUNCTION__);
   if (!isset($patterns)) {
-    $paths = overlay_paths_get_overlay_paths();
+    $paths = overlay_paths_admin_paths();
     $patterns = implode("\n", array_keys($paths));
   }
   return $patterns;
@@ -37,7 +36,15 @@ function overlay_paths_get_overlay_patterns() {
  * theme too, but we undo that in overlay_paths_custom_theme().
  */
 function overlay_paths_admin_paths() {
-  return overlay_paths_get_overlay_paths();
+  $paths = &drupal_static(__FUNCTION__);
+  if (!isset($paths)) {
+    foreach (overlay_paths_get_overlay_paths() as $path => $v) {
+      if ($v !== FALSE) {
+        $paths[$path] = TRUE;
+      }
+    }
+  }
+  return $paths;
 }
 
 /**

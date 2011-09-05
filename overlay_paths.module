@@ -41,35 +41,29 @@ function overlay_paths_admin_paths() {
 }
 
 /**
- * We set the custom theme back to the main site theme on overlay paths.
+ * Implements hook_custom_theme().
+ *
+ * We duplicate the functionality of the system module's implementation, but
+ * check to see if we're actually on one of the non-administrative overlay pages
+ * too.
+ *
+ * @see system_custom_theme();
  */
 function overlay_paths_custom_theme() {
-  if (user_access('view the administration theme') && drupal_match_path(current_path(), overlay_paths_get_overlay_patterns())) {
-    return variable_get('theme_default');
+  if (user_access('view the administration theme') && path_is_admin(current_path())  && !drupal_match_path(current_path(), overlay_paths_get_overlay_patterns())) {
+    return variable_get('admin_theme');
   }
 }
 
 /**
 * Implements hook_module_implements_alter().
 *
-* This is merely here so we don't have to set our module's weight. We just make
-* sure our hook_custom_theme is called after system module's implementation.
+* We're going to swap out system module's implementation of hook_custom_theme for our own.
 */
 function overlay_paths_module_implements_alter(&$implementations, $hook) {
   if ($hook == 'custom_theme') {
     if (isset($implementations['overlay_paths'])) {
-      // We need to make sure system comes before hosting_task
-      // Rebuild the array.
-      $modules = $implementations;
-      $implementations = array();
-      foreach ($modules as $m => $group) {
-        if ($m == 'overlay_paths' && !isset($implementations['system'])) {
-          $implementations['system'] = $modules['system'];
-        }
-        if (!isset($implementations[$m])) {
-          $implementations[$m] = $group;
-        }
-      }
+      unset($implementations['system']);
     }
   }
 }

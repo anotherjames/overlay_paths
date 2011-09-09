@@ -12,7 +12,8 @@
  * @return
  *   An associative array. For each item, the key is the path in question, in
  *   a format acceptable to drupal_match_path(). The value for each item should
- *   be TRUE or an associative array with the following possible keys:
+ *   be FALSE (to explicitly stop the path using the overlay), TRUE, or an
+ *   associative array with the following possible keys:
  *   - 'width': The width of the overlay when viewing this path, this can be
  *     specified in 'px', 'em' or '%' or no units, which will default to using
  *     'px'.
@@ -45,4 +46,5 @@ function hook_overlay_paths_alter(&$paths) {
   // All user pages should appear in the overlay.
   $paths['user'] = TRUE;
   $paths['user/*'] = TRUE;
+  $paths['user/*/edit'] = FALSE;
 }

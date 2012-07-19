@@ -81,7 +81,7 @@ function overlay_paths_init() {
     if (isset($_GET['render']) && $_GET['render'] == 'overlay') {
       // If this page shouldn't be rendered here, redirect to the parent.
       if (!overlay_paths_is_overlay($current_path)) {
-        overlay_close_dialog($current_path);
+        overlay_close_dialog($current_path, array('query' => drupal_get_query_parameters(NULL, array('q', 'render'))));
       }
 
       // Indicate that we are viewing an overlay child page.
@@ -159,6 +159,20 @@ function overlay_paths_overlay_parent_initialize() {
     $type = str_replace('<front>', variable_get('site_frontpage', 'node'), $type);
   }
   drupal_add_js(array('overlay' => array('paths' => $paths)), 'setting');
+  $path_prefixes = array();
+  if (module_exists('locale') && variable_get('locale_language_negotiation_url_part', LOCALE_LANGUAGE_NEGOTIATION_URL_PREFIX) == LOCALE_LANGUAGE_NEGOTIATION_URL_PREFIX) {
+    // Get languages grouped by status and select only the enabled ones.
+    $languages = language_list('enabled');
+    $languages = $languages[1];
+
+    $path_prefixes = array();
+    foreach ($languages as $language) {
+      if ($language->prefix) {
+        $path_prefixes[] = $language->prefix;
+      }
+    }
+  }
+  drupal_add_js(array('overlay' => array('pathPrefixes' => $path_prefixes)), 'setting');
   // Pass along the Ajax callback for rerendering sections of the parent window.
   drupal_add_js(array('overlay' => array('ajaxCallback' => 'overlay-ajax')), 'setting');
 }
